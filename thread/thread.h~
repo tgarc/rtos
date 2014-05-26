@@ -1,0 +1,62 @@
+#ifndef THREAD_H
+#define THREAD_H
+
+#include "util/macros.h"
+
+#define MAX_THREADS 5
+#define MAX_TASKS 5
+#define TCB_STACK_SIZE 128
+#define THREAD_STACK_BOTTOM TCB_STACK_SIZE - 1
+#define THREAD_STACK_TOP 0
+
+enum {
+	SAVED_R4,
+	SAVED_R5,
+	SAVED_R6,
+	SAVED_R7,
+	SAVED_R8,
+	SAVED_R9,
+	SAVED_R10,
+	SAVED_R11,
+	SAVED_R0,
+	SAVED_R1,
+	SAVED_R2,
+	SAVED_R3,
+	SAVED_R12,
+	SAVED_LR,
+	SAVED_PC,
+	SAVED_PSR,
+	SAVED_REGS
+};
+
+typedef struct TCB {
+	ULONG* sp;
+	struct TCB* prev;
+	struct TCB* next;
+	void (*task)(void);
+	UINT id;
+	UINT priority;
+	UINT sleep;
+	BOOL blocked;
+	BOOL available;
+	ULONG stack[TCB_STACK_SIZE];
+} TCB;
+
+typedef struct {
+	UINT reload;
+	UINT timer;
+	void (*task)(void);
+} Task;
+
+unsigned long GetCurrentThreadID(void);
+int AddThread(void(*task)(void), unsigned long stackSize, unsigned long priority);
+int RemoveCurrentThread(void);
+void ThreadInit(void);
+void ThreadSleepMSTick(void);
+void SleepCurrentThread(ULONG sleepTimeMS);
+
+SF_STATUS OSAddPeriodicThread(void (*task)(void), ULONG periodMs, ULONG priority);
+void OSClearMsTime(void);
+ULONG OSMsTime(void);
+
+#endif
