@@ -14,7 +14,7 @@ static UCHAR	Available[MAX_SEMAPHORES];
 
 // Internal functions
 static void 		InitializeSpace(void);
-static list_t* 	GetNextAvailableList(void);
+static list_t* 		GetNextAvailableList(void);
 //static void 		PrintThreads(semaphore_t *s);
 
 static void InitializeSpace(void) {
@@ -28,13 +28,12 @@ static list_t* GetNextAvailableList(void) {
 	UINT listID;
 	for(listID=0; listID < MAX_SEMAPHORES && !Available[listID]; listID++) {};
 
-	if (!Available[listID]) {
+	if (listID == MAX_SEMAPHORES || !Available[listID]) {
 		return NULL;
 	}
 	
 	Available[listID] = FALSE;
 	return &BlockList[listID];
-	
 }
 
 SF_STATUS OS_InitSemaphore(semaphore_t *s,ULONG val) {
@@ -49,7 +48,7 @@ SF_STATUS OS_InitSemaphore(semaphore_t *s,ULONG val) {
 	newList = GetNextAvailableList();
 	ASSERT(newList != NULL)
 
-	s->queue = 	newList;
+	s->queue = newList;
 	list_init(s->queue);
 	s->count = val;
 	
